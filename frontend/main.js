@@ -11,7 +11,7 @@ import { configurarGrade } from './shared/grade.js';
 import { configurarBairros } from './shared/bairros.js';
 import { S } from './shared/estado.js';
 import { Store } from './shared/store.js';
-import { showView } from './shared/navegacao.js';
+import { showView, instalarNavegacao } from './shared/navegacao.js';
 import { openSobre, closeSobre } from './shared/sobre.js';
 import { quickExit, instalarAtalhos } from './shared/saida-rapida.js';
 import { initMap, renderMap, setLayer } from './mapa/mapa.js';
@@ -67,7 +67,7 @@ export function boot() {
   window.addEventListener('aurora-abrir-area', e => abrirArea(e.detail && e.detail.cell));
   let areaInicial = window.AuroraApp && window.AuroraApp.areaInicial;
   Store.on(() => {
-    const modNav = $('[data-modnav]'); if (modNav) modNav.hidden = !canModerate();
+    for (const modNav of $$('[data-modnav]')) modNav.hidden = !(Store.mode === 'api' || canModerate());
     if (!S.userLayer && Store.ready && recentReports().length && S.layer !== 'relatos') { S.layer = 'relatos'; syncControls(); }
     renderMap(); refreshPanel();
     if (areaInicial && Store.ready) { abrirArea(areaInicial); areaInicial = null; }
@@ -77,6 +77,7 @@ export function boot() {
   });
   Store.init();
   iniciarPush();
+  instalarNavegacao();
   const tema = LS.get('tema', null); if (tema) document.documentElement.setAttribute('data-theme', tema); // escolha da pessoa vale mais que a do aparelho
   $('#btnTema').onclick = () => { const t = isDark() ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', t); LS.set('tema', t); };
   const onTheme = () => renderMap();

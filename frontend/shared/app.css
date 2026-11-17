@@ -526,6 +526,7 @@ h3.gp{margin:22px 0 10px;font-size:15px;color:var(--ink-2)}
 
 /* mobile tab bar */
 .tabbar{display:none}
+.mobile-modnav{display:none}
 .fab{display:none}
 
 /* ============ responsive ============ */
@@ -547,6 +548,7 @@ h3.gp{margin:22px 0 10px;font-size:15px;color:var(--ink-2)}
 @media (max-width:999px){
   .app{display:block}
   .rail{display:none}
+  .mobile-modnav{display:inline-flex}
   .top-brand{display:flex}
   .crumbs{display:none}
   .main{padding-bottom:calc(var(--tab-h) + 40px + env(safe-area-inset-bottom,0px))}
@@ -620,3 +622,21 @@ h3.gp{margin:22px 0 10px;font-size:15px;color:var(--ink-2)}
   .seg button{padding:8px 10px;font-size:14px}
   .seg .long{display:none}
 }
+
+/* Acesso individual e gestão da equipe */
+.acesso-equipe{max-width:460px;padding:28px;display:grid;gap:12px;margin:12px 0 32px}
+.acesso-equipe input,.equipe-form input,.equipe-form select{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line-2);border-radius:var(--r-s);background:var(--surface);color:var(--ink);font:inherit}
+.acesso-equipe label,.equipe-form label{font-weight:700;font-size:14px}
+.form-error{color:var(--danger);font-size:14px;min-height:0}
+.form-error:empty{display:none}
+.equipe-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.equipe-toolbar .acts,.equipe-tabs{display:flex;gap:10px;flex-wrap:wrap}
+.equipe-tabs{padding-bottom:18px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.mod-refresh{margin-bottom:18px}
+.equipe-layout{display:grid;grid-template-columns:minmax(260px,360px) minmax(0,1fr);gap:24px;align-items:start;padding-bottom:32px}
+.equipe-form{display:grid;gap:12px;padding:24px}
+.equipe-membros{padding:24px}
+.equipe-pessoa{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
+.equipe-pessoa .acts{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.equipe-pessoa b{font-size:16px}
+@media(max-width:1100px){.equipe-layout{grid-template-columns:1fr}.equipe-pessoa{flex-wrap:wrap}}
