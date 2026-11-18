@@ -82,6 +82,7 @@ def test_painel_completo(servidor, viewport):
         page.get_by_label('Usuário', exact=True).fill('responsavel')
         page.get_by_label('Senha', exact=True).fill(chave)
         page.get_by_role('button', name='Entrar', exact=True).click()
+        page.get_by_role('button', name='Relatos', exact=True).click()
         expect(page.get_by_role('button', name='Ocultar', exact=True)).to_be_visible()
         # Erro de rede não deve salvar estado local nem anunciar sucesso.
         page.route('**/api/v1/moderacao/' + id, lambda route: route.abort())
@@ -123,8 +124,10 @@ def test_painel_completo(servidor, viewport):
         page.get_by_label('Usuário', exact=True).fill('responsavel')
         page.get_by_label('Senha', exact=True).fill(chave)
         page.get_by_role('button', name='Entrar', exact=True).click()
+        page.get_by_role('button', name='Relatos', exact=True).click()
         expect(page.get_by_role('button', name='Ocultar', exact=True)).to_be_visible()
         page.reload()
+        page.get_by_role('button', name='Relatos', exact=True).click()
         expect(page.get_by_role('button', name='Ocultar', exact=True)).to_be_visible()
         assert not erros, erros
         context.close()
@@ -155,6 +158,7 @@ def test_admin_cadastra_e_revoga_moderadora(servidor, viewport):
         page.get_by_label('Usuário', exact=True).fill('ana.silva')
         page.get_by_label('Senha', exact=True).fill('Senha-ficticia-da-Ana')
         page.get_by_role('button', name='Entrar', exact=True).click()
+        page.get_by_role('button', name='Relatos', exact=True).click()
         expect(page.get_by_text('Nenhum relato ainda', exact=True)).to_be_visible()
         expect(page.get_by_role('button', name='Equipe', exact=True)).to_have_count(0)
         assert context.request.get(url + '/api/v1/usuarios/equipe').status == 403
@@ -166,3 +170,42 @@ def test_admin_cadastra_e_revoga_moderadora(servidor, viewport):
         assert not erros, erros
         context.close()
         browser.close()
+
+
+@pytest.mark.parametrize('viewport', [{'width': 1440, 'height': 1000}, {'width': 390, 'height': 844}])
+def test_visao_geral_sem_chat_e_exportacao(servidor, viewport):
+    url, senha, api = servidor
+    api.post('/api/v1/relatos', json={'tipos':['assedio'], 'cell':'0_0', 'texto':'Relato fictício do painel.'})
+    with sync_playwright() as p:
+        browser=p.chromium.launch(executable_path=shutil.which('chromium'),headless=True,args=['--no-sandbox'])
+        ctx=browser.new_context(viewport=viewport)
+        page=ctx.new_page();page.goto(url+'/moderacao')
+        expect(page.locator('#chat')).not_to_be_visible()
+        page.get_by_label('Usuário',exact=True).fill('responsavel')
+        page.get_by_label('Senha',exact=True).fill(senha)
+        page.get_by_role('button',name='Entrar',exact=True).click()
+        page.get_by_role('button',name='Visão geral',exact=True).click()
+        expect(page.locator('[data-metrica="total"]')).to_contain_text('1')
+        expect(page.get_by_role('heading',name='Tipos de situação')).to_be_visible()
+        page.get_by_label('Período do painel').select_option('7')
+        expect(page.locator('[data-metrica="total"]')).to_contain_text('1')
+        with page.expect_download() as evento:
+            page.get_by_role('button',name='Baixar relatório PDF',exact=True).click()
+        assert Path(evento.value.path()).read_bytes().startswith(b'%PDF-')
+        page.get_by_role('button',name='Preparar encaminhamento',exact=True).click()
+        expect(page.get_by_text('Nenhum documento é enviado automaticamente.',exact=True)).to_be_visible()
+        with page.expect_download() as evento:
+            page.get_by_role('button',name='Baixar minuta para revisão',exact=True).click()
+        assert Path(evento.value.path()).read_bytes().startswith(b'%PDF-')
+        page.get_by_role('button',name='Relatos',exact=True).click()
+        page.get_by_role('button',name='Ocultar',exact=True).click()
+        expect(page.get_by_role('button',name='Mostrar',exact=True)).to_be_visible()
+        page.get_by_role('button',name='Visão geral',exact=True).click()
+        expect(page.locator('[data-metrica="ocultos"]')).to_contain_text('1')
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        page.goto(url)
+        if viewport['width'] > 999: expect(page.locator('#chat')).to_be_visible()
+        else:
+            page.locator('.tabbar [data-act="relatar"]').click()
+            expect(page.locator('#chat')).to_be_visible()
+        ctx.close();browser.close()

@@ -31,7 +31,7 @@ def test_config_formato(cliente):
     assert cfg['ia'] == {'provedor': 'heuristica', 'usa_modelo': False}
     assert cfg['conjuntos_padrao'] == {'dado_oficial': 'bo-ssp-2025-2026', 'percepcao': 'pesquisa-percepcao-2026'}
     assert cfg['modulos'] == {'relatos': True, 'apoio': True, 'dados_oficiais': True, 'percepcao': True, 'dashboard': True,
-                              'ia': True, 'moderacao': True, 'usuarios': True, 'relatorios': False}
+                              'ia': True, 'moderacao': True, 'usuarios': True, 'relatorios': True}
 
 
 def test_config_vocabulario_na_ordem_do_backend(cliente):

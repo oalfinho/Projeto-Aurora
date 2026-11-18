@@ -11,6 +11,8 @@ export function showView(v) {
   const hash = v === 'mapa' ? '' : '#' + v;
   if (location.hash !== hash) history.pushState(null, '', location.pathname + location.search + hash);
   S.view = v;
+  document.body.classList.toggle('area-equipe', v === 'moderacao');
+  if (v === 'moderacao') { $('#chat').classList.remove('open', 'picking'); document.body.style.overflow = ''; }
   for (const sec of $$('.view')) sec.hidden = sec.id !== 'view-' + v;
   for (const b of $$('[data-view]')) b.classList.toggle('on', b.dataset.view === v);
   $('#crumb').textContent = $('#view-' + v).dataset.title;

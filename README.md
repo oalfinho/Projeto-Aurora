@@ -71,6 +71,8 @@ Configurações pendentes de decisão com o Observatório ficam em variáveis `A
 
 ## Painel de Moderação e equipe
 
+A equipe dispõe de visão geral com cards e gráficos, filtros de período e revisão de relatos. Administradores também exportam relatórios PDF e minutas agregadas de encaminhamento para revisão e envio manual. O chatbot aparece somente na área pública.
+
 **[Guia completo: instalação, primeiro administrador e uso passo a passo](docs/moderacao/README.md)**
 
 O desenvolvedor cria **uma única conta inicial de administrador** no servidor. Essa pessoa entra no painel e cadastra o restante da equipe, sem depender de alterações no código.
@@ -205,3 +207,5 @@ Violência doméstica acontece sobretudo dentro de casa. Por isso o app apresent
 ## Créditos
 
 Mapa: Leaflet (licença BSD-2). Dados do mapa © colaboradores do OpenStreetMap, licença ODbL. Fontes: Atkinson Hyperlegible e Bricolage Grotesque (Google Fonts). Rede de apoio: Prefeitura de Rio Claro, Tribunal de Justiça de SP, Defensoria Pública de SP e Fundação Municipal de Saúde de Rio Claro.
+
+Demonstração atualizada: [vídeo completo, prints e PDFs do novo painel](entregas/painel-atualizado/README.md).

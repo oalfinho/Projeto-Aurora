@@ -2,12 +2,13 @@ import { $, h, toast } from '../shared/dom.js';
 import { areaName } from '../shared/bairros.js';
 import { Store } from '../shared/store.js';
 import { allReports, cleanReport } from '../relatos/relatos.js';
+import { renderVisaoGeral } from './visao-geral.js';
 import { renderEquipe } from './equipe.js';
 import { reportItem } from '../relatos/item-relato.js';
 
 export const canModerate = () => Store.mode === 'api' ? !!Store.moderacao && (Store.papeis || []).includes('moderacao') : Store.canEdit || Store.mode === 'local';
 
-let aba = 'relatos';
+let aba = 'resumo';
 
 function formularioAcesso(el) {
   const login = h('input', { id: 'login-equipe', required: true, autocomplete: 'username', maxlength: 64, placeholder: 'Seu usuário' });
@@ -16,7 +17,7 @@ function formularioAcesso(el) {
   const entrar = h('button', { class: 'btn primary', type: 'submit' }, 'Entrar');
   const form = h('form', { class: 'card acesso-equipe', onsubmit: async e => {
     e.preventDefault(); entrar.disabled = true; erro.textContent = '';
-    try { aba = 'relatos'; await Store.entrarModeracao(login.value, senha.value); senha.value = ''; }
+    try { aba = 'resumo'; await Store.entrarModeracao(login.value, senha.value); senha.value = ''; }
     catch (err) { erro.textContent = err.message || 'Não foi possível entrar. Tente novamente.'; }
     finally { entrar.disabled = false; }
   } }, h('h2', null, 'Acesso da equipe'), h('p', { class: 'muted' }, 'Entre com a conta criada pelo administrador responsável.'),
@@ -28,11 +29,12 @@ export function renderMod() {
   const el = $('#view-moderacao');
   // Releituras do mapa não apagam uma chave que a pessoa está digitando.
   if (Store.mode === 'api' && !canModerate() && el.querySelector('.acesso-equipe')) return;
+  if (aba === 'resumo' && canModerate() && el.querySelector('.painel-geral')) return;
   if (aba === 'equipe' && canModerate() && el.querySelector('.equipe-layout')) return;
   el.replaceChildren();
-  el.append(h('div', { class: 'page-head' }, h('p', { class: 'eyebrow' }, 'Moderação'), h('h1', null, canModerate() && aba === 'equipe' ? 'Pessoas que cuidam da comunidade' : 'Revisar relatos'),
+  el.append(h('div', { class: 'page-head' }, h('p', { class: 'eyebrow' }, 'Moderação'), h('h1', null, canModerate() && aba === 'equipe' ? 'Pessoas que cuidam da comunidade' : aba === 'resumo' && canModerate() ? 'Visão geral da comunidade' : 'Revisar relatos'),
     h('p', null, Store.mode === 'api'
-      ? 'Revise os relatos da comunidade. Ocultar retira o relato do mapa para todas as pessoas. Verificar adiciona o selo da equipe. Os votos ainda ficam somente no aparelho de quem votou.'
+      ? aba === 'resumo' && canModerate() ? 'Acompanhe os relatos recebidos, consulte os indicadores e prepare os documentos da equipe.' : 'Revise os relatos da comunidade. Ocultar retira o relato do mapa para todas as pessoas. Verificar adiciona o selo da equipe. Os votos ainda ficam somente no aparelho de quem votou.'
       : 'Moderação local para testes: as decisões ficam apenas neste aparelho. Três sinalizações de informação falsa tiram um relato do mapa até a revisão.')));
   if (!Store.ready) { el.append(h('p', { class: 'muted' }, 'Carregando…')); return; }
   if (Store.mode === 'api' && !canModerate()) { formularioAcesso(el); return; }
@@ -43,14 +45,15 @@ export function renderMod() {
       h('p', { class: 'muted' }, h('b', null, usuario.login), ' · ', usuario.papel === 'administrador' ? 'Administrador' : 'Moderador'),
       h('div', { class: 'acts' },
         h('button', { class: 'btn sm', type: 'button', onclick: async () => {
-          try { await Store.sairModeracao(); aba = 'relatos'; } catch (err) { toast(err.message); }
+          try { await Store.sairModeracao(); aba = 'resumo'; } catch (err) { toast(err.message); }
         } }, 'Sair da moderação'))));
     const tabs = h('div', { class: 'equipe-tabs', role: 'group', 'aria-label': 'Painel da equipe' });
     const tab = (nome, valor) => h('button', { class: 'btn' + (aba === valor ? ' primary' : ''), type: 'button',
       'aria-pressed': aba === valor ? 'true' : 'false', onclick: () => { aba = valor; el.replaceChildren(); renderMod(); } }, nome);
-    tabs.append(tab('Relatos', 'relatos'));
+    tabs.append(tab('Visão geral', 'resumo'), tab('Relatos', 'relatos'));
     if (usuario.papel === 'administrador') tabs.append(tab('Equipe', 'equipe'));
     el.append(tabs);
+    if (aba === 'resumo') { renderVisaoGeral(el, usuario.papel === 'administrador'); return; }
     if (aba === 'equipe' && usuario.papel === 'administrador') { renderEquipe(el, usuario); return; }
     el.append(h('button', { class: 'btn sm mod-refresh', type: 'button', onclick: async e => {
       e.currentTarget.disabled = true;

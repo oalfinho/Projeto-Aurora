@@ -55,14 +55,28 @@ Abra **http://localhost:8000/moderacao**. O endereço encaminha para `/#moderaca
 
 O FastAPI serve o frontend e a API juntos. **GitHub Pages e `python -m http.server` não executam esse backend**: o modo estático é uma demonstração local, sem a gestão compartilhada da equipe. Enviar código ao GitHub não publica automaticamente o servidor.
 
-## 5. Cadastrar a equipe
+## 5. Visão geral, relatórios e equipe
+
+Ao entrar, a equipe vê a **Visão geral**, sem o chatbot. O assistente de registro continua na área pública.
+
+- Escolha os últimos 7, 30, 90 ou 365 dias, pela **data de envio em UTC**, respeitando a retenção do banco.
+- Os cards mostram total recebido, visíveis sem verificação, visíveis verificados e ocultos. Essas três categorias de estado somam o total.
+- Os gráficos mostram tipos, até oito regiões aproximadas e os últimos 14 dias com envios no período. Um relato pode ter mais de um tipo. Concentração de relatos não é uma classificação de risco.
+- **Atualizar indicadores** relê os dados. A aba **Relatos** mantém as ações de revisão.
+- Administradores podem **Baixar relatório PDF**, gerado pelo servidor com os mesmos filtros. Moderadores podem consultar o painel, mas não exportar.
+- **Preparar encaminhamento → Baixar minuta para revisão** gera um PDF com destinatário sugerido Patrulha Maria da Penha, contagens agregadas e campos de revisão, providência, data e assinatura. **Não envia mensagem, não aciona viatura e não é um despacho oficial.** O responsável revisa e envia pelo canal institucional autorizado. Não há integração oficial configurada.
+- Os PDFs não incluem descrições, nomes de usuárias, IDs dos relatos ou localização exata. Relatos, boletins oficiais e pesquisa não são somados como se fossem a mesma evidência.
+
+Ao atualizar uma instalação existente, execute novamente `python -m pip install -r backend/requirements.txt` dentro do ambiente virtual: a geração de PDF usa ReportLab.
+
+### Cadastrar a equipe
 
 Entre como administrador e abra **Equipe**. Preencha usuário, senha individual e permissão; clique em **Cadastrar pessoa**.
 
 | Papel | Permissões |
 | --- | --- |
-| Administrador | Revisar relatos, cadastrar moderadores e administradores e desativar/reativar moderadores. |
-| Moderador | Revisar relatos. Não acessa a lista nem o cadastro da equipe. |
+| Administrador | Consultar indicadores, exportar PDFs, revisar relatos, cadastrar moderadores e administradores e desativar/reativar moderadores. |
+| Moderador | Consultar indicadores e revisar relatos. Não exporta PDFs nem acessa a gestão da equipe. |
 
 A pessoa cadastrada entra no mesmo endereço com sua própria conta. Desativar um moderador revoga imediatamente todas as sessões dele; reativar permite um novo login. O painel não desativa administradores, protegendo o acesso do responsável. Troca/recuperação de senha ainda não tem fluxo no painel.
 
@@ -117,3 +131,13 @@ Os testes E2E usam banco e servidor temporários, com contas fictícias, em desk
 ### Resultado da verificação desta entrega (17/11/2026)
 
 Na cópia integrada do fork: **394 testes passaram e 1 falhou**, executando backend e os 4 cenários E2E de desktop/celular juntos. A única falha foi `test_normalizar_todos_os_caracteres_um_a_um`, a incompatibilidade Unicode preexistente descrita acima. A sintaxe dos módulos JavaScript alterados e `git diff --check` passaram. Não há etapa de build do frontend nem comandos de lint/type-check configurados para essa entrega. Hospedagem em produção não foi realizada nem validada.
+
+### API do painel
+
+`GET /api/v1/moderacao/resumo?dias=30` exige sessão da equipe. `GET /api/v1/moderacao/relatorio.pdf?dias=30` exige administrador; acrescente `&encaminhamento=true` para a minuta. O período aceita 1–365 dias; respostas privadas usam `Cache-Control: no-store`.
+
+### Verificação do novo painel (18/11/2026)
+
+Após a atualização dos cenários para a abertura na Visão geral, **6 testes E2E passaram**, cobrindo login, equipe, revogação, revisão, indicadores, PDFs, ausência de chatbot na Moderação e retorno à área pública, em PC e celular. Os **14 testes de API/configuração** (`test_api_painel_equipe.py` e `test_api_sistema.py`) também passaram, assim como a sintaxe JavaScript e `git diff --check`. A falha Unicode preexistente continua sendo uma limitação da suíte geral.
+
+[Vídeo atualizado, prints e PDFs de exemplo](../../entregas/painel-atualizado/README.md). Todo o material usa dados fictícios; não houve implantação em produção.

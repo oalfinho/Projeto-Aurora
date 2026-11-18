@@ -1,5 +1,5 @@
 """Moderação compartilhada: decisões persistidas e protegidas no servidor."""
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Query
 from sqlalchemy.orm import Session
 
 from backend.config import Configuracoes, obter_configuracoes
@@ -9,7 +9,9 @@ from backend.services.equipe import conta_publica
 from backend.database.sessao import obter_sessao
 from backend.models.moderacao import AcaoModeracaoEntrada, EstadoModeracao, PainelModeracao, VerificacoesPublicas
 from backend.routes.relatos import relato_publico
-from backend.services.autorizacao import exigir_moderacao
+from backend.services.autorizacao import exigir_moderacao, exigir_admin
+from backend.services.painel_equipe import resumo_equipe
+from backend.services.relatorio import gerar_pdf
 from backend.services.retencao import limite_retencao_ms
 
 router = APIRouter(tags=['moderação'])
@@ -46,3 +48,16 @@ def moderar(relato_id: str, entrada: AcaoModeracaoEntrada, response: Response, u
     repo.registrar(relato_id, entrada.campo, entrada.valor, usuario.id)
     sessao.commit()
     return repo.estado([relato_id])
+
+
+@router.get('/moderacao/resumo', dependencies=[Depends(exigir_moderacao)])
+def resumo(response: Response, dias: int = Query(30, ge=1, le=365), sessao: Session = Depends(obter_sessao), cfg: Configuracoes = Depends(obter_configuracoes)):
+    response.headers['Cache-Control'] = 'no-store'
+    return resumo_equipe(sessao, cfg, dias)
+
+
+@router.get('/moderacao/relatorio.pdf', dependencies=[Depends(exigir_admin)])
+def relatorio(dias: int = Query(30, ge=1, le=365), encaminhamento: bool = False, sessao: Session = Depends(obter_sessao), cfg: Configuracoes = Depends(obter_configuracoes)):
+    pdf = gerar_pdf(resumo_equipe(sessao, cfg, dias), encaminhamento)
+    nome = 'aurora-minuta-encaminhamento.pdf' if encaminhamento else 'aurora-relatorio.pdf'
+    return Response(pdf, media_type='application/pdf', headers={'Cache-Control':'no-store', 'Content-Disposition':f'attachment; filename="{nome}"'})
