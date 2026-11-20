@@ -27,7 +27,7 @@ import { renderAlertas } from './relatos/alertas.js';
 import { iniciarPush } from './shared/push.js';
 import { Chat, relatar, closeChat } from './chatbot/chat.js';
 import { renderDados } from './dashboard/dados-pesquisa.js';
-import { canModerate, renderMod } from './moderacao/moderacao.js';
+import { renderMod } from './moderacao/moderacao.js';
 
 /* ------------------------------------------------------------------ inicialização */
 export function boot() {
@@ -67,7 +67,6 @@ export function boot() {
   window.addEventListener('aurora-abrir-area', e => abrirArea(e.detail && e.detail.cell));
   let areaInicial = window.AuroraApp && window.AuroraApp.areaInicial;
   Store.on(() => {
-    for (const modNav of $$('[data-modnav]')) modNav.hidden = !(Store.mode === 'api' || canModerate());
     if (!S.userLayer && Store.ready && recentReports().length && S.layer !== 'relatos') { S.layer = 'relatos'; syncControls(); }
     renderMap(); refreshPanel();
     if (areaInicial && Store.ready) { abrirArea(areaInicial); areaInicial = null; }

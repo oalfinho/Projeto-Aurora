@@ -84,7 +84,7 @@ O desenvolvedor cria **uma única conta inicial de administrador** no servidor. 
 
 No Windows, use `.venv/Scripts/python`. O comando solicita usuário e senha sem exibir a senha no terminal, cria as tabelas que faltam e grava apenas um hash scrypt. Se já existir administrador, ele recusa criar outro e preserva as contas existentes. Execute apontando `AURORA_BANCO_URL` para o mesmo banco usado pelo servidor.
 
-Abra `http://localhost:8000/moderacao` ou use **Moderação** no menu (escudo no celular). Entre com a conta inicial, abra **Equipe** e cadastre cada pessoa com usuário, senha de pelo menos 12 caracteres e permissão:
+Abra `http://localhost:8000/moderacao` diretamente no navegador. Entre com a conta inicial, abra **Equipe** e cadastre cada pessoa com usuário, senha de pelo menos 12 caracteres e permissão:
 
 | Permissão | O que pode fazer |
 | --- | --- |
