@@ -51,7 +51,7 @@ Por padrão o banco é SQLite em `backend/database/aurora.db`. Se usar `AURORA_B
 .venv/bin/python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --no-access-log
 ```
 
-Abra **http://localhost:8000/moderacao**. O endereço encaminha para `/#moderacao`. Também é possível usar Moderação no menu lateral ou o escudo no celular. Entre com o usuário e a senha criados. Use sempre o mesmo endereço do servidor durante a sessão.
+Abra **http://localhost:8000/moderacao**. O endereço encaminha para `/#moderacao`. A equipe acessa o painel diretamente por esse endereço. Entre com o usuário e a senha criados. Use sempre o mesmo endereço do servidor durante a sessão.
 
 O FastAPI serve o frontend e a API juntos. **GitHub Pages e `python -m http.server` não executam esse backend**: o modo estático é uma demonstração local, sem a gestão compartilhada da equipe. Enviar código ao GitHub não publica automaticamente o servidor.
 

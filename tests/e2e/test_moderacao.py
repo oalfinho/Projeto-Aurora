@@ -117,9 +117,12 @@ def test_painel_completo(servidor, viewport):
         page.get_by_role('button', name='Sair da moderação').click()
         expect(page.get_by_label('Senha', exact=True)).to_be_visible()
         expect(page.get_by_text('Texto para revisão.', exact=True)).not_to_be_visible()
-        # Navegação pelo menu e reabertura direta após reload.
+        # A página pública abre no mapa. A equipe entra pelo endereço direto.
         page.goto(url)
-        page.get_by_role('button', name='Moderação', exact=True).click()
+        expect(page.locator('#view-mapa')).to_be_visible()
+        expect(page.locator('[data-view="moderacao"]')).to_have_count(0)
+        expect(page.locator('#view-moderacao')).to_be_hidden()
+        page.goto(url + '/moderacao')
         expect(page).to_have_url(url + '/#moderacao')
         page.get_by_label('Usuário', exact=True).fill('responsavel')
         page.get_by_label('Senha', exact=True).fill(chave)

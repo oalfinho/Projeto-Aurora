@@ -526,7 +526,6 @@ h3.gp{margin:22px 0 10px;font-size:15px;color:var(--ink-2)}
 
 /* mobile tab bar */
 .tabbar{display:none}
-.mobile-modnav{display:none}
 .fab{display:none}
 
 /* ============ responsive ============ */
@@ -548,7 +547,6 @@ h3.gp{margin:22px 0 10px;font-size:15px;color:var(--ink-2)}
 @media (max-width:999px){
   .app{display:block}
   .rail{display:none}
-  .mobile-modnav{display:inline-flex}
   .top-brand{display:flex}
   .crumbs{display:none}
   .main{padding-bottom:calc(var(--tab-h) + 40px + env(safe-area-inset-bottom,0px))}
